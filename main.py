@@ -4,24 +4,20 @@ import tkinter as tk
 from PIL import ImageTk, Image
 
 
-WINDOW_SIZE = 800
-
-
-def picture_window(path):
+def picture_window(path, window_size):
     window = tk.Tk()
     window.title(path)
-    window.geometry(str(WINDOW_SIZE) + "x" + str(WINDOW_SIZE))
+    window.geometry(str(window_size) + "x" + str(window_size))
     window.configure(bg='grey')
 
     image = Image.open(path)
     image_width, image_height = image.size
     if image_height >= image_width:
-        image_width = int(image_width/(image_height/WINDOW_SIZE * 2 / 3))
-        image_height = int(image_height/(image_height/WINDOW_SIZE * 2 / 3))
+        image_width = int(image_width/(image_height/window_size * 2 / 3))
+        image_height = int(image_height/(image_height/window_size * 2 / 3))
     else:
-        image_height = int(image_height/(image_width/WINDOW_SIZE))
-        image_width = int(image_width/(image_width/WINDOW_SIZE))
-        print("1", image_width, image_height, (image_width/WINDOW_SIZE))
+        image_height = int(image_height/(image_width/window_size))
+        image_width = int(image_width/(image_width/window_size))
 
     canvas = tk.Canvas(window, height=image_height, width=image_width)
 
@@ -34,7 +30,7 @@ def picture_window(path):
 
 
 def create_sub_dirs(path):
-    sub_dirs = ["/orig_photos", "/crop_photos", "desc_photos"]
+    sub_dirs = ["/orig_photos", "/crop_photos", "/desc_photos"]
     try:
         for folder in sub_dirs:
             if not os.path.exists(path + folder):
@@ -57,15 +53,20 @@ def get_file_paths(path):
 
 
 def main(argv):
-    path = argv[0]
-    if os.path.exists(path):
-        create_sub_dirs(path)
-        picture_paths = sort_files(get_file_paths(path))
-        for path in picture_paths:
-            picture_window(path)
+    if len(argv) == 2:
+        path = argv[0]
+        window_size = int(argv[1])
+        if os.path.exists(path) and window_size > 0:
+            create_sub_dirs(path)
+            picture_paths = sort_files(get_file_paths(path))
+            for path in picture_paths:
+                picture_window(path, window_size)
+        else:
+            print("Your path is not valid or your screen size integer is smaller than 0")
+            exit(0)
     else:
-        print("Your path is not valid!")
-        exit(0)
+        print("You must have exact 2 arguments:\n1. Path to your picture folder\n2. Window size for x and y as one integer"
+              "\nExample: python3 main.py /path/to/your/picture/folder 800")
 
 
 if __name__ == "__main__":
