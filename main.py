@@ -1,7 +1,8 @@
-import sys
-import os
 import math
+import os
+import sys
 import tkinter as tk
+
 from PIL import ImageTk, Image
 
 
@@ -11,8 +12,8 @@ def crop_picture(path, sensibility, sub_dirs):
     image_width, image_height = rgb_raw_image.size
 
     picture_start_point_x = run_trough_picture(rgb_raw_image, "W", 0, sensibility)
-    picture_rotation_n_x = run_trough_picture(rgb_raw_image, "W", -int(image_width/10), sensibility)
-    picture_rotation_s_x = run_trough_picture(rgb_raw_image, "W", int(image_width/10), sensibility)
+    picture_rotation_n_x = run_trough_picture(rgb_raw_image, "W", -int(image_width / 10), sensibility)
+    picture_rotation_s_x = run_trough_picture(rgb_raw_image, "W", int(image_width / 10), sensibility)
 
     if picture_rotation_n_x >= picture_rotation_s_x:
         opposite = picture_rotation_n_x - picture_start_point_x
@@ -98,17 +99,17 @@ def picture_window(path, window_size):
     image = Image.open(path)
     image_width, image_height = image.size
     if image_height >= image_width:
-        image_width = int(image_width/(image_height/window_size * 2 / 3))
-        image_height = int(image_height/(image_height/window_size * 2 / 3))
+        image_width = int(image_width / (image_height / window_size * 2 / 3))
+        image_height = int(image_height / (image_height / window_size * 2 / 3))
     else:
-        image_height = int(image_height/(image_width/window_size))
-        image_width = int(image_width/(image_width/window_size))
+        image_height = int(image_height / (image_width / window_size))
+        image_width = int(image_width / (image_width / window_size))
 
     canvas = tk.Canvas(window, height=image_height, width=image_width)
 
     resize_image = image.resize((image_width, image_height), Image.ANTIALIAS)
     photo = ImageTk.PhotoImage(resize_image)
-    canvas.create_image(image_width/2, image_height/2, image=photo)
+    canvas.create_image(image_width / 2, image_height / 2, image=photo)
     canvas.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
 
     font = ('helvetica', 20)
