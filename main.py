@@ -94,7 +94,6 @@ def picture_window(path, window_size):
     window = tk.Tk()
     window.title(path)
     window.geometry(str(window_size) + "x" + str(window_size))
-    window.configure(bg='grey')
 
     image = Image.open(path)
     image_width, image_height = image.size
@@ -111,6 +110,14 @@ def picture_window(path, window_size):
     photo = ImageTk.PhotoImage(resize_image)
     canvas.create_image(image_width/2, image_height/2, image=photo)
     canvas.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
+
+    font = ('helvetica', 20)
+
+    description_title = tk.Label(window, text="Description of the picture:", font=font)
+    description_title.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
+
+    description = tk.Text(window, bg="grey80", font=font)
+    description.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
 
     window.mainloop()
 
