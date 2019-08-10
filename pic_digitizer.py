@@ -2,7 +2,49 @@ import os
 import sys
 import tkinter as tk
 
-from PIL import ImageTk, Image, ImageDraw, ImageFont, ImageFilter
+from PIL import ImageTk, Image, ImageDraw, ImageFont
+
+redo = False
+
+
+class CheckImage:
+    def __init__(self, image_path, window_size):
+        def ok(event):
+            top.destroy()
+
+        def stop(event):
+            global redo
+            redo = True
+            top.destroy()
+
+        top = self.top = tk.Toplevel()
+        top.configure(bg="Red")
+        top.title(image_path)
+
+        my_label = tk.Label(top, text='Image Check - Press \'Enter\' to save this picture or \'ESC\' to cancel this operation.')
+        my_label.pack()
+
+        check_image = Image.open(image_path)
+        image_width, image_height = check_image.size
+        if image_height >= image_width:
+            image_width = int(image_width / (image_height / window_size))
+            image_height = int(image_height / (image_height / window_size))
+        else:
+            image_height = int(image_height / (image_width / window_size))
+            image_width = int(image_width / (image_width / window_size))
+
+        canvas = tk.Canvas(top, height=image_height, width=image_width, bg="Red", bd=0, highlightthickness=0, relief=tk.RIDGE)
+        canvas.pack()
+        resize_image = check_image.resize((image_width, image_height))
+        photo = ImageTk.PhotoImage(resize_image)
+        canvas.create_image(image_width / 2, image_height / 2, image=photo)
+
+        top.update_idletasks()
+
+        top.bind('<Return>', ok)
+        top.bind('<Escape>', stop)
+
+        top.mainloop()
 
 
 def crop_picture(path, sensibility, sub_dirs, resize):
@@ -109,11 +151,23 @@ def run_trough_picture(rgb_raw_image, position, start_pos, sensibility):
         return 0
 
 
-def create_desc_picture(description, path, sub_dirs, font_path):
+def create_desc_picture(description, path, sub_dirs, font_path, commands):
     font_size = 32
 
     image = Image.open(path)
-    image_width, image_height = image.size
+    count_turn_left, count_turn_right = 0, 0
+    for command in commands:
+        if command is "turn_left":
+            count_turn_left += 1
+        elif command is "turn_right":
+            count_turn_right += 1
+
+    rotation_degree = (90 * count_turn_left) - (90 * count_turn_right)
+    rotate_image = image.rotate(rotation_degree, expand=1)
+
+    rotate_image.save(path)
+
+    image_width, image_height = rotate_image.size
 
     text_image = Image.new('RGB', (image_width, font_size + 10), color=(255, 255, 255))
     text_image_width, text_image_height = text_image.size
@@ -125,7 +179,7 @@ def create_desc_picture(description, path, sub_dirs, font_path):
     text_draw = ImageDraw.Draw(text_image)
     text_draw.text((0, 0), description, font=text_draw_font, fill=(0, 0, 0))
 
-    background_image.paste(image, (20, 20))
+    background_image.paste(rotate_image, (20, 20))
     background_image.paste(text_image, (20, image_height + 40))
     path, filename = os.path.split(path)
     new_path = path.rsplit("/", 1)[0]
@@ -133,15 +187,40 @@ def create_desc_picture(description, path, sub_dirs, font_path):
 
     background_image.save(background_image_path)
 
+    return background_image_path
+
 
 def picture_window(path, sub_dirs, window_size):
     def save_description(event):
-        create_desc_picture(description.get(), path, sub_dirs, font_path)
+        image_path = create_desc_picture(description.get(), path, sub_dirs, font_path, commands)
+        check_image = CheckImage(image_path, window_size)
+        window.wait_window(check_image.top)
+        global redo
+        if redo:
+            redo = False
+        else:
+            window.destroy()
+
+    def turn_left(event):
+        commands.append("turn_left")
+        command_text_var.set("Rotations: " + str(commands))
+        window.update_idletasks()
+        print(commands)
+
+    def turn_right(event):
+        commands.append("turn_right")
+        command_text_var.set("Rotations: " + str(commands))
+        window.update_idletasks()
+        print(commands)
+
+    def stop(event):
+        print("Don't save picture.")
         window.destroy()
+
+    commands = []
 
     window = tk.Tk()
     window.title(path)
-    window.update_idletasks()
     window.geometry('{}x{}+{}+{}'.format(
         window_size,
         window_size,
@@ -167,16 +246,24 @@ def picture_window(path, sub_dirs, window_size):
     canvas.create_image(image_width / 2, image_height / 2, image=photo)
     canvas.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
 
-    font = (font_path, 32)
-
-    description_title = tk.Label(window, text="Description of the picture:", font=font)
+    description_title = tk.Label(window, text="Description of the picture:", font=(font_path, 32))
     description_title.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
+    command_text_var = tk.StringVar()
+    commands_text = tk.Label(window, textvariable=command_text_var, font=(font_path, 14))
+    commands_text.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
 
-    description = tk.Entry(window, bg="grey80", font=font)
+    command_text_var.set("Rotations: None")
+
+    description = tk.Entry(window, bg="grey80", font=(font_path, 32))
     description.bind('<Return>', save_description)
+    description.bind('<Left>', turn_left)
+    description.bind('<Right>', turn_right)
+    description.bind('<Escape>', stop)
+
     description.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
     description.focus_set()
 
+    window.update_idletasks()
     window.mainloop()
 
 
