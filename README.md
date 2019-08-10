@@ -1,7 +1,21 @@
 # picdigitizer
-Tool to auto-crop old analog pictures and add a description on the digital files.
+Tool to auto-crop old analog pictures and add a description in the digital files.
+This application is very focused on my system. I'm sure, that you have to change something to use it properly.
 
-#### USAGE
-- Take a picture of the analog pictures. Make sure the background is as dark (black) as possible. Also, be sure to take the pictures in * .JPG format.
-- Put all pictures in a folder and call the program with `python main.py /path/to/your/picture/folder 800` (use Python > 3)
-- The tool will create a subfolder and then paste once the cropped images without the description and once with the entered description. The description is requested for each image after execution: Simply enter the description here, `Enter` and then the program jumps to the next image. Repeat until all pictures are through.
+#### What I used
+Epson Perfection V30 Scanner on macOS Mojave 
+
+#### Build
+- Install `requirements.txt` for `pip`
+- Set Permissions: `chmod +x ./build.sh ./scan.sh`
+- Run `./build.sh`
+
+
+#### Scan pictures
+- Run `./scan.sh`
+- Between each scan process, you have three seconds to change the picture.
+- Make sure the lid stays open and the room is dark. For best results, cover the white part of the lid.
+
+#### Usage
+- After scanning you will found all the pictures in your new `./images` folder.
+- 
