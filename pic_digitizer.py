@@ -21,7 +21,9 @@ class CheckImage:
         top.configure(bg="Red")
         top.title(image_path)
 
-        my_label = tk.Label(top, text='Image Check - Press \'Enter\' to save this picture or \'ESC\' to cancel this operation.')
+        my_label = tk.Label(top,
+                            text='Image Check - Press \'Enter\' to save this picture or \'ESC\' to cancel this '
+                                 'operation.')
         my_label.pack()
 
         check_image = Image.open(image_path)
@@ -33,7 +35,8 @@ class CheckImage:
             image_height = int(image_height / (image_width / window_size))
             image_width = int(image_width / (image_width / window_size))
 
-        canvas = tk.Canvas(top, height=image_height, width=image_width, bg="Red", bd=0, highlightthickness=0, relief=tk.RIDGE)
+        canvas = tk.Canvas(top, height=image_height, width=image_width, bg="Red", bd=0, highlightthickness=0,
+                           relief=tk.RIDGE)
         canvas.pack()
         resize_image = check_image.resize((image_width, image_height))
         photo = ImageTk.PhotoImage(resize_image)
@@ -133,15 +136,15 @@ def run_trough_picture(rgb_raw_image, position, start_pos, sensibility):
     r_old, g_old, b_old = ground_color
 
     if position == "E":
-        for x in range(image_width - int(image_width/3), int(image_width / 6), -5):
+        for x in range(image_width - int(image_width / 3), int(image_width / 6), -5):
             r, g, b = rgb_raw_image.getpixel((x, int(image_height / 6) + start_pos))
             if (abs(r - r_old) >= sensibility) or (abs(g - g_old) >= sensibility) or (abs(b - b_old) >= sensibility):
-                print("x:", x, 1, image_width - int(image_width/3), int(image_width / 6))
+                print("x:", x, 1, image_width - int(image_width / 3), int(image_width / 6))
                 return x
 
     elif position == "S":
-        print(image_height - int(image_height/3), int(image_height / 6))
-        for y in range(image_height - int(image_height/4), int(image_height / 4), -5):
+        print(image_height - int(image_height / 3), int(image_height / 6))
+        for y in range(image_height - int(image_height / 4), int(image_height / 4), -5):
             r, g, b = rgb_raw_image.getpixel((int(image_width / 6) + start_pos, y))
             if (abs(r - r_old) >= sensibility) or (abs(g - g_old) >= sensibility) or (abs(b - b_old) >= sensibility):
                 print("y:", y, 1)
