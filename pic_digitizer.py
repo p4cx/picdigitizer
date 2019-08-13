@@ -8,7 +8,7 @@ redo = False
 
 
 class CheckImage:
-    def __init__(self, image_path, window_size):
+    def __init__(self, window, image_path, window_size, font_path, description):
         def ok(event):
             top.destroy()
 
@@ -17,20 +17,20 @@ class CheckImage:
             redo = True
             top.destroy()
 
-        top = self.top = tk.Toplevel()
+        top = self.top = tk.Toplevel(window)
         top.configure(bg="Red")
         top.title(image_path)
 
         my_label = tk.Label(top,
                             text='Image Check - Press \'Enter\' to save this picture or \'ESC\' to cancel this '
-                                 'operation.')
+                                 'operation.', borderwidth=5, relief=tk.SOLID, font=(font_path, 14))
         my_label.pack()
 
         check_image = Image.open(image_path)
         image_width, image_height = check_image.size
         if image_height >= image_width:
-            image_width = int(image_width / (image_height / window_size))
-            image_height = int(image_height / (image_height / window_size))
+            image_width = int(image_width / (image_height / window_size * 3 / 2))
+            image_height = int(image_height / (image_height / window_size * 3 / 2))
         else:
             image_height = int(image_height / (image_width / window_size))
             image_width = int(image_width / (image_width / window_size))
@@ -41,6 +41,9 @@ class CheckImage:
         resize_image = check_image.resize((image_width, image_height))
         photo = ImageTk.PhotoImage(resize_image)
         canvas.create_image(image_width / 2, image_height / 2, image=photo)
+
+        text_label = tk.Label(top, text=description, borderwidth=5, relief=tk.SOLID, font=(font_path, 14))
+        text_label.pack()
 
         top.update_idletasks()
 
@@ -196,9 +199,10 @@ def create_desc_picture(description, path, sub_dirs, font_path, commands):
 def picture_window(path, sub_dirs, window_size):
     def save_description(event):
         image_path = create_desc_picture(description.get(), path, sub_dirs, font_path, commands)
-        check_image = CheckImage(image_path, window_size)
+        check_image = CheckImage(window, image_path, window_size, font_path, description.get())
         window.wait_window(check_image.top)
         global redo
+        print(redo)
         if redo:
             redo = False
         else:
@@ -249,21 +253,25 @@ def picture_window(path, sub_dirs, window_size):
     canvas.create_image(image_width / 2, image_height / 2, image=photo)
     canvas.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
 
-    description_title = tk.Label(window, text="Description of the picture:", font=(font_path, 32))
-    description_title.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
+    how_to_text_1 = tk.Label(window, text="\'Left\' rotate left - \'Right\' rotate right", font=(font_path, 14))
+    how_to_text_2 = tk.Label(window, text="Write the picture description in the grey textbox and press \'Return\', "
+                                          "\'Escape\': Don't save picture, load next one", font=(font_path, 14))
+    how_to_text_1.pack()
+    how_to_text_2.pack()
+
     command_text_var = tk.StringVar()
     commands_text = tk.Label(window, textvariable=command_text_var, font=(font_path, 14))
-    commands_text.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
+    commands_text.pack()
 
     command_text_var.set("Rotations: None")
 
-    description = tk.Entry(window, bg="grey80", font=(font_path, 32))
+    description = tk.Entry(window, bg="grey80", font=(font_path, 18))
     description.bind('<Return>', save_description)
     description.bind('<Left>', turn_left)
     description.bind('<Right>', turn_right)
     description.bind('<Escape>', stop)
 
-    description.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
+    description.pack(expand=True, fill=tk.BOTH)
     description.focus_set()
 
     window.update_idletasks()
