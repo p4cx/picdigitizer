@@ -323,13 +323,13 @@ def main(argv):
             for path in picture_paths:
                 cropped_image_path = crop_picture(path, sensibility, sub_dirs, resize)
                 picture_window(cropped_image_path, sub_dirs, window_size)
-                path, filename = os.path.split(path)
-                os.rename(path + "/" + filename, path + sub_dirs[0] + "/" + filename)
+                new_path, filename = os.path.split(path)
+                os.rename(new_path + "/" + filename, new_path + sub_dirs[0] + "/" + filename)
         else:
             print("Your path is not valid or your screen size integer is smaller than 0 or or or ...")
             exit(0)
     else:
-        print("You must have exact 3 arguments:"
+        print("You must have exact 4 arguments:"
               "\n1. Path to your picture folder"
               "\n2. Window size for x and y as one"
               "\n3. Sensibility for background"
