@@ -5,12 +5,14 @@ import tkinter as tk
 from PIL import ImageTk, Image, ImageDraw, ImageFont
 
 redo = False
+commands = []
 
 
 class CheckImage:
     def __init__(self, window, image_path, window_size, font_path, description):
         def ok(event):
             top.destroy()
+            window.destroy()
 
         def stop(event):
             global redo
@@ -157,8 +159,9 @@ def run_trough_picture(rgb_raw_image, position, start_pos, sensibility):
         return 0
 
 
-def create_desc_picture(description, path, sub_dirs, font_path, commands):
+def create_desc_picture(description, path, sub_dirs, font_path):
     font_size = 32
+    global commands
 
     image = Image.open(path)
     count_turn_left, count_turn_right = 0, 0
@@ -198,7 +201,9 @@ def create_desc_picture(description, path, sub_dirs, font_path, commands):
 
 def picture_window(path, sub_dirs, window_size):
     def save_description(event):
-        image_path = create_desc_picture(description.get(), path, sub_dirs, font_path, commands)
+        image_path = create_desc_picture(description.get(), path, sub_dirs, font_path)
+        global commands
+        commands = []
         check_image = CheckImage(window, image_path, window_size, font_path, description.get())
         window.wait_window(check_image.top)
         global redo
@@ -209,12 +214,14 @@ def picture_window(path, sub_dirs, window_size):
             window.destroy()
 
     def turn_left(event):
+        global commands
         commands.append("turn_left")
         command_text_var.set("Rotations: " + str(commands))
         window.update_idletasks()
         print(commands)
 
     def turn_right(event):
+        global commands
         commands.append("turn_right")
         command_text_var.set("Rotations: " + str(commands))
         window.update_idletasks()
@@ -222,9 +229,11 @@ def picture_window(path, sub_dirs, window_size):
 
     def stop(event):
         print("Don't save picture.")
+        global commands
+        commands = []
         window.destroy()
 
-    commands = []
+    global commands
 
     window = tk.Tk()
     window.title(path)
@@ -293,6 +302,7 @@ def sort_files(path_list):
     for path in path_list:
         if path[-3:] == "jpg" or path[-3:] == "JPG" or path[-4:] == "jpeg":
             picture_path_list.append(path)
+    picture_path_list.sort(key=lambda x: float(x.strip('.jpg').strip('/Users/pascal/Code/github/picdigitizer/images/')))
     return picture_path_list
 
 
@@ -312,7 +322,9 @@ def main(argv):
             picture_paths = sort_files(get_file_paths(path))
             for path in picture_paths:
                 cropped_image_path = crop_picture(path, sensibility, sub_dirs, resize)
-                description = picture_window(cropped_image_path, sub_dirs, window_size)
+                picture_window(cropped_image_path, sub_dirs, window_size)
+                path, filename = os.path.split(path)
+                os.rename(path + "/" + filename, path + sub_dirs[0] + "/" + filename)
         else:
             print("Your path is not valid or your screen size integer is smaller than 0 or or or ...")
             exit(0)
